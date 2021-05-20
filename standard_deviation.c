@@ -11,7 +11,8 @@ int main(int argc , char * argv[])
     int i;
     int local_sum = 0, global_sum = 0;
     int* elements;
-    float global_mean = 0, local_sum_sqrd_diff = 0;
+    float global_mean = 0, local_sum_sqrd_diff = 0, global_sum_sqrd_diff = 0;
+    double variance, standard_deviation;
     MPI_Status status;	/* return status for receive */
 
     /* Start up MPI */
@@ -32,11 +33,7 @@ int main(int argc , char * argv[])
     /* Broadcasting n to each slave process */
     MPI_Bcast(&n, 1, MPI_INT, 0, MPI_COMM_WORLD);
 
-    if(my_rank == 0)
-    {
-
-    }
-    else
+    if(my_rank != 0)
     {
         elements = malloc(n * sizeof (int));
         local_sum = 0;
@@ -54,7 +51,7 @@ int main(int argc , char * argv[])
         printf("\n");
     }
 
-    /* Calculating the sum of all local sums to the global sum */
+    /* Reducing sum of all local sums to global sum */
     MPI_Allreduce(&local_sum, &global_sum, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
 
 
@@ -68,10 +65,18 @@ int main(int argc , char * argv[])
         // Calculating the local sum of squared differences
         for(i = 0 ; i < n ; i++)
             local_sum_sqrd_diff += pow(elements[i] - global_mean, 2);
+    }
 
+    /* Reducing local sum of squared difference to global sum */
+    MPI_Reduce(&local_sum_sqrd_diff, &global_sum_sqrd_diff, 1, MPI_FLOAT, MPI_SUM, 0, MPI_COMM_WORLD);
 
-        printf("sum_sqrd_diff @P%d = %f\n", my_rank, local_sum_sqrd_diff);
+    if(my_rank == 0)
+    {
+        variance = global_sum_sqrd_diff / (n * (p - 1));
+        printf("\nVariance = %.2lf\n", variance);
 
+        standard_deviation = sqrt(variance);
+        printf("Standard Deviation = %.2lf\n", standard_deviation);
     }
 
     /* shutdown MPI */

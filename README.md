@@ -2,4 +2,4 @@
 This repo contains my codes for Parallel Processing course in FCAI Cairo University
 
 Contents:
-- `primes.c` Counting prime numbers between two numbers [x, y[
+- `prime.c` Counting prime numbers between two numbers [x, y[

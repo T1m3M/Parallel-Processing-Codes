@@ -27,15 +27,15 @@ int main(int argc , char * argv[])
 	        r = (y - x) / (p - 1);
 
         for(dest = 1; dest < p ; dest++) {
-            int lb, up;
+            int lb, ub;
 
             // New values for the slave process
             lb = x + (r * (dest - 1));
-            up = x + (r * dest);
+            ub = x + (r * dest);
 
             // sending the ranges for each slave process
             MPI_Send(&lb, 1, MPI_INT, dest, tag, MPI_COMM_WORLD);
-            MPI_Send(&up, 1, MPI_INT, dest, tag, MPI_COMM_WORLD);
+            MPI_Send(&ub, 1, MPI_INT, dest, tag, MPI_COMM_WORLD);
         }
 
         int all_primes = 0;
